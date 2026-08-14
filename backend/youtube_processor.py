@@ -2,28 +2,50 @@ import re
 from typing import List, Dict, Any, Optional
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 
-class TranscriptError(Exception):
-    def __init__(self, message, code, fallback_data):
-        super().__init__(message)
-        self.code = code
-        self.fallback_data = fallback_data
-
 class YouTubeProcessor:
-    """Service for extracting and formatting YouTube video transcripts with precise timestamps."""
-    
-    _cache = {} # Basic in-memory cache for processed videos
+    """Service for extracting YouTube video IDs and transcripts with precise timestamps."""
     
     @staticmethod
     def extract_video_id(url_or_id: str) -> str:
-        """Extracts 11-character YouTube video ID from various URL formats."""
-        if len(url_or_id) == 11 and not ("/" in url_or_id or "." in url_or_id):
-            return url_or_id
-        
-        regex = r"(?:v=|\/|youtu\.be\/|\/embed\/|\/v\/|\/e\/|watch\?v=|&v=)([^#&?]{11})"
-        match = re.search(regex, url_or_id)
-        if match:
-            return match.group(1)
-        raise ValueError(f"Could not extract YouTube video ID from input: {url_or_id}")
+        """
+        Universal YouTube ID extractor that supports all URL variations:
+        - https://www.youtube.com/watch?v=ID
+        - https://youtu.be/ID
+        - https://www.youtube.com/embed/ID
+        - https://www.youtube.com/shorts/ID
+        - https://www.youtube.com/live/ID
+        - Raw 11-char ID
+        """
+        if not url_or_id:
+            raise ValueError("URL cannot be empty")
+
+        url_str = url_or_id.strip()
+
+        # Check if already 11-char ID
+        if re.fullmatch(r"[a-zA-Z0-9_-]{11}", url_str):
+            return url_str
+
+        # Match YouTube standard formats
+        patterns = [
+            r"(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?.*?(?:v=)([a-zA-Z0-9_-]{11})",
+            r"(?:https?:\/\/)?(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]{11})",
+            r"(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})",
+            r"(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})",
+            r"(?:https?:\/\/)?(?:www\.)?youtube\.com\/live\/([a-zA-Z0-9_-]{11})",
+            r"(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([a-zA-Z0-9_-]{11})",
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, url_str)
+            if match:
+                return match.group(1)
+
+        # Fallback query regex
+        fallback_match = re.search(r"(?:v=|\/)([a-zA-Z0-9_-]{11})(?:[&?]|$)", url_str)
+        if fallback_match:
+            return fallback_match.group(1)
+
+        raise ValueError(f"Could not extract YouTube video ID from URL: {url_or_id}")
 
     @classmethod
     def get_transcript(cls, video_url_or_id: str, languages: List[str] = ["en", "ru"]) -> List[Dict[str, Any]]:
@@ -35,17 +57,13 @@ class YouTubeProcessor:
         try:
             transcript_list = YouTubeTranscriptApi.get_transcript(video_id, languages=languages)
             return transcript_list
-        except (TranscriptsDisabled, NoTranscriptFound) as e:
-            fallback = {
-                "modules": [{"title": "Субтитры недоступны", "start": "00:00", "summary": "Не удалось загрузить субтитры для данного видео."}],
-                "quizzes": [],
-                "flashcards": []
-            }
-            raise TranscriptError(
-                message=f"No subtitles available for video {video_id}",
-                code="NO_TRANSCRIPT",
-                fallback_data=fallback
-            )
+        except (TranscriptsDisabled, NoTranscriptFound):
+            try:
+                transcripts = YouTubeTranscriptApi.list_transcripts(video_id)
+                transcript = transcripts.find_transcript(['en', 'ru', 'de', 'fr', 'es'])
+                return transcript.fetch()
+            except Exception as inner_e:
+                raise RuntimeError(f"No usable transcript found for video {video_id}: {str(inner_e)}")
         except Exception as e:
             raise RuntimeError(f"Error fetching YouTube transcript: {str(e)}")
 
@@ -59,11 +77,20 @@ class YouTubeProcessor:
         return f"{mins:02d}:{secs:02d}"
 
     @classmethod
+    def parse_timestamp_to_seconds(cls, timestamp_str: str) -> int:
+        """Parses MM:SS or HH:MM:SS string into total seconds."""
+        parts = list(map(int, timestamp_str.strip().split(':')))
+        if len(parts) == 3:
+            return parts[0] * 3600 + parts[1] * 60 + parts[2]
+        elif len(parts) == 2:
+            return parts[0] * 60 + parts[1]
+        elif len(parts) == 1:
+            return parts[0]
+        return 0
+
+    @classmethod
     def format_transcript_with_timestamps(cls, transcript: List[Dict[str, Any]], interval_seconds: int = 60) -> str:
-        """
-        Groups transcript lines into timestamped intervals (e.g., every 60s) 
-        to pass cleanly to an LLM without overwhelming token count.
-        """
+        """Groups transcript lines into timestamped intervals for LLM processing."""
         if not transcript:
             return ""
 
