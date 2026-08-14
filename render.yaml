@@ -1,0 +1,26 @@
+services:
+  # FastAPI Web Service
+  - type: web
+    name: cs-ml-roadmap-api
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cs-ml-roadmap-db
+          property: connectionString
+
+databases:
+  # Managed PostgreSQL Database with pgvector
+  - name: cs-ml-roadmap-db
+    region: frankfurt
+    plan: free
+    databaseName: hubdb
+    user: hubuser

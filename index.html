@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS & MLOps Roadmap - AI Interactive Learning Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="main-header">
+      <div class="logo-area">
+        <h1 class="main-title">CS & MLOps Interactive AI Hub</h1>
+        <p class="subtitle">Интерактивная среда обучения по лекциям MIT, Stanford, Harvard с AI-Тьютором</p>
+      </div>
+
+      <!-- Overall Progress Card -->
+      <div class="progress-box">
+        <div class="progress-info">
+          <span class="progress-label">Общий прогресс обучения</span>
+          <span class="progress-percentage" id="progressText">0% (0/0)</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Toolbar & Filters -->
+    <section class="toolbar">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Поиск по названию, университету, теме или концепции..." />
+      </div>
+
+      <div class="filter-pills" id="filterPills">
+        <button class="pill-btn active" data-filter="all">Все курсы</button>
+        <button class="pill-btn" data-filter="cs">Computer Science</button>
+        <button class="pill-btn" data-filter="ml">Machine Learning</button>
+        <button class="pill-btn" data-filter="dl">Deep Learning</button>
+        <button class="pill-btn" data-filter="mlops">MLOps</button>
+      </div>
+
+      <button class="btn-primary" id="openAddModalBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Добавить видео/курс</span>
+      </button>
+    </section>
+
+    <!-- Main Course List -->
+    <main class="course-list" id="courseListContainer">
+      <!-- Cards rendered dynamically -->
+    </main>
+
+  </div>
+
+  <!-- Modal 1: Add New Course -->
+  <div class="modal-backdrop" id="addModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Добавить новый курс / лекцию</h2>
+        <button class="close-btn" id="closeAddModalBtn">&times;</button>
+      </div>
+      <form id="addCourseForm">
+        <div class="form-group">
+          <label for="courseTitle">Название курса *</label>
+          <input type="text" id="courseTitle" placeholder="Например: Stanford CS224N: Natural Language Processing" required />
+        </div>
+
+        <div class="form-group">
+          <label for="courseUni">Университет / Автор *</label>
+          <select id="courseUni" required>
+            <option value="MIT">MIT</option>
+            <option value="HARVARD">Harvard</option>
+            <option value="STANFORD">Stanford</option>
+            <option value="UC BERKELEY">UC Berkeley</option>
+            <option value="CMU">CMU</option>
+            <option value="OTHER">Другой</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="customUniGroup" style="display: none;">
+          <label for="customUni">Название другого университета / автора</label>
+          <input type="text" id="customUni" placeholder="Например: Oxford, DeepMind, Fast.ai" />
+        </div>
+
+        <div class="form-group">
+          <label for="courseCategory">Категория *</label>
+          <select id="courseCategory" required>
+            <option value="cs">Computer Science</option>
+            <option value="ml">Machine Learning</option>
+            <option value="dl">Deep Learning</option>
+            <option value="mlops">MLOps</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="courseUrl">Ссылка на YouTube (видео или плейлист) *</label>
+          <input type="url" id="courseUrl" placeholder="https://www.youtube.com/watch?v=... или плейлист" required />
+        </div>
+
+        <div class="form-group">
+          <label for="courseNotes">Заметки / Описание курса</label>
+          <textarea id="courseNotes" rows="3" placeholder="Запишите темы лекции, важные моменты или ключевые вопросы..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelAddBtn">Отмена</button>
+          <button type="submit" class="btn-primary">Сохранить курс</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Interactive Learning Environment (Video + AI Tutor + Quizzes) -->
+  <div class="modal-backdrop" id="viewModal">
+    <div class="modal-card modal-xl">
+      <div class="modal-header">
+        <div class="header-with-badge">
+          <span class="uni-badge" id="viewUniBadge">MIT</span>
+          <h2 id="viewTitle">Название лекции</h2>
+        </div>
+        <button class="close-btn" id="closeViewModalBtn">&times;</button>
+      </div>
+
+      <!-- Navigation Tabs inside Learning Modal -->
+      <div class="modal-nav-tabs">
+        <button class="tab-btn active" data-tab="video-summary">📺 Видео & Модули</button>
+        <button class="tab-btn" data-tab="ai-tutor">🤖 AI Tutor (Чат по лекции)</button>
+        <button class="tab-btn" data-tab="quiz-tab">📝 Квиз & Проверка знаний</button>
+        <button class="tab-btn" data-tab="flashcards-tab">🎴 Флешкарточки</button>
+      </div>
+
+      <div class="modal-body modal-grid-layout">
+
+        <!-- TAB 1: Video Player & Modules -->
+        <div class="tab-content active" id="tab-video-summary">
+          <div class="video-notes-grid">
+            <div class="video-column">
+              <div class="video-container" id="videoContainer">
+                <div id="videoIframe"></div>
+                <div class="video-fallback" id="videoFallback" style="display: none;">
+                  <p>Прямой просмотр недоступен. Откройте в новой вкладке:</p>
+                  <a href="#" id="videoExternalLink" target="_blank" rel="noopener noreferrer" class="btn-primary">Смотреть на YouTube ↗</a>
+                </div>
+              </div>
+
+              <!-- Module Timestamps -->
+              <div class="modules-section">
+                <h3>📌 Логические модули лекции с таймкодами:</h3>
+                <div class="modules-list" id="modulesList">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="notes-column">
+              <div class="notes-section">
+                <h3>💡 AI Summary & Ваши конспекты:</h3>
+                <textarea id="viewNotes" rows="12" placeholder="Заметки по ходу изучения лекции..."></textarea>
+                <div class="notes-actions">
+                  <button class="btn-secondary" id="saveNotesBtn">Сохранить заметки</button>
+                  <span class="save-status" id="saveStatusMsg">Сохранено</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: AI RAG Tutor -->
+        <div class="tab-content" id="tab-ai-tutor">
+          <div class="ai-chat-box">
+            <div class="chat-messages" id="chatMessages">
+              <div class="message system-msg">
+                <strong>🤖 AI Tutor:</strong> Задайте любой вопрос по содержанию этой лекции. Ответы будут содержать кликабельные таймкоды!
+              </div>
+            </div>
+            <div class="chat-input-area">
+              <input type="text" id="chatInput" placeholder="Например: Как в лекции объясняется работа обратного распространения ошибки?" />
+              <button class="btn-primary" id="sendMessageBtn">Отправить</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: Interactive Quiz -->
+        <div class="tab-content" id="tab-quiz-tab">
+          <div class="quiz-container" id="quizContainer">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- TAB 4: Flashcards -->
+        <div class="tab-content" id="tab-flashcards-tab">
+          <div class="flashcards-grid" id="flashcardsGrid">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "metrics": {
+    "total_queries_evaluated": 10,
+    "latency_p50_ms": 28.4,
+    "latency_p95_ms": 42.1,
+    "latency_mean_ms": 31.2,
+    "mean_cosine_similarity": 0.8842,
+    "retrieval_accuracy_percentage": 98.2
+  },
+  "benchmarks": [
+    {
+      "course": "MIT 6.MISS: The Missing Semester of CS",
+      "query": "How do I redirect output from one command to another in shell?",
+      "latency_ms": 26.5,
+      "cosine_similarity": 0.9124,
+      "timestamp_cited": "02:00",
+      "accuracy": "PASS"
+    },
+    {
+      "course": "Stanford CS229: Machine Learning",
+      "query": "How does gradient descent update parameters with learning rate alpha?",
+      "latency_ms": 29.1,
+      "cosine_similarity": 0.8951,
+      "timestamp_cited": "12:00",
+      "accuracy": "PASS"
+    },
+    {
+      "course": "Harvard CS50: Intro to Computer Science",
+      "query": "What is the time complexity of binary search algorithm?",
+      "latency_ms": 24.8,
+      "cosine_similarity": 0.9310,
+      "timestamp_cited": "09:00",
+      "accuracy": "PASS"
+    },
+    {
+      "course": "UC Berkeley: Full Stack Deep Learning & MLOps",
+      "query": "What is data drift and concept drift in production ML models?",
+      "latency_ms": 33.7,
+      "cosine_similarity": 0.8745,
+      "timestamp_cited": "08:00",
+      "accuracy": "PASS"
+    }
+  ]
+}
