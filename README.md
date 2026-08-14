@@ -4,11 +4,13 @@
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_16-336791.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org)
 [![pgvector](https://img.shields.io/badge/Vector_DB-pgvector-blue.svg)](https://github.com/pgvector/pgvector)
 [![Gemini](https://img.shields.io/badge/AI_Engine-Gemini_1.5_Flash-4285F4.svg?logo=google&logoColor=white)](https://ai.google.dev)
-[![Docker](https://img.shields.io/badge/Deployment-Docker_Compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com)
+[![Vercel](https://img.shields.io/badge/Live_Demo-Vercel-000000.svg?logo=vercel&logoColor=white)](https://cs-ml-research-hub.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> **🚀 Live Demo**: [https://cs-ml-research-hub.vercel.app](https://cs-ml-research-hub.vercel.app)  
 > **Transform passive YouTube university lectures into an interactive AI-powered learning environment.**  
 > Features automated transcript timestamping, vector-grounded RAG tutoring with clickable video seek citations, dynamic quizzes, and 3D flashcards.
+
 
 ---
 
